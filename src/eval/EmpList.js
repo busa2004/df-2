@@ -37,8 +37,8 @@ class EmpList extends Component {
     console.log(this.state.tasks);
   }  
 
-  getUser = (e) => {    
-    console.log(e.target.value);
+  getUser = (hi) => {    
+    console.log(hi);
     // this.props.clickButton(e.target.value);
   }
 
@@ -48,10 +48,12 @@ class EmpList extends Component {
           title: 'Evaluation',
           dataIndex: 'evalId',
           key: 'evalId',          
-          render: () => {
+          render: (text) => {
+            let getUser = () => {
+              this.getUser(text);
+            }
             return <Button 
-                      value={this.state.tasks} 
-                      onClick={this.getUser}
+                      onClick={getUser}
                       disabled={this.state.evalButtonVisible}
                     >평가</Button>
           }
