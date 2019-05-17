@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import VersionSelect from './VersionSelect';
-import EvalTable from './EvalTable';
 
 import LoadingIndicator from '../common/LoadingIndicator';
 import ServerError from '../common/ServerError';

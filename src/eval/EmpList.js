@@ -50,7 +50,7 @@ class EmpList extends Component {
           key: 'evalId',          
           render: () => {
             return <Button 
-                      value={this.state.columns.dataIndex} 
+                      value={this.state.tasks} 
                       onClick={this.getUser}
                       disabled={this.state.evalButtonVisible}
                     >평가</Button>
