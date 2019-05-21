@@ -1,24 +1,21 @@
 import React, { Component } from 'react';
-import { Button, Input } from 'antd';
+import { Table, Button } from 'antd';
 import LoadingIndicator from '../common/LoadingIndicator';
 import ServerError from '../common/ServerError';
 import NotFound from '../common/NotFound';
 import '../ListAndSearchUi/ScrollList.css';
-import Option4table from '../ListComponent/Option4table';
-
-const Search = Input.Search;
+import { searchEval } from '../util/APIUtils';
 
 class EmpList extends Component {
   constructor(props) {
     super(props);
-    this.state={
-      taskId: this.props.taskId,
+    this.state = {
       columns: [{
         title: '사번',
         dataIndex: 'user.id',
-        key:'user_id'
+        key: 'user_id'
       }, {
-        title: '이름',
+        title: '사원 이름',
         dataIndex: 'user.name',
         key: 'name'
       }, {
@@ -28,38 +25,54 @@ class EmpList extends Component {
       }, {
         title: '업무 마감일',
         dataIndex: 'endDate',
-        key: 'end_date'
+        key: 'end_date',
+        isCompleted: []
       }],
-      tasks: this.props.tasks,
-      search: '',
-      evalButtonVisible: this.props.evalButtonVisible
+      userTasks: this.props.userTasks, // 업무를 가진 사원리스트
     }
-    console.log(this.state.tasks);
-  }  
-
-  getUser = (hi) => {    
-    console.log(hi);
-    // this.props.clickButton(e.target.value);
   }
 
+  evalModal = (userTask) => { // 평가할 사원 업무 // userTasks랑 다름
+    console.log(userTask);
+    this.props.evalModal(userTask);
+  }
+  
+// 평가? 수정?
+  // setButtonName = (taskId) => {
+  //   // eval 테이블에서 user_task가 있는지 확인
+  //   searchEval(taskId)
+  //     .then(response => {
+  //       if (response == true) { // 평가완료
+  //         this.state.isCompleted = "수정"          
+  //       } else if (response == false) {          
+  //         this.state.isCompleted = "평가"          
+  //       }
+  //     })
+  //     .catch(error => {
+  //       console.log(error);
+  //     });
+  // }
   componentWillMount() {
     this.setState({
       columns: this.state.columns.concat({
-          title: 'Evaluation',
-          dataIndex: 'evalId',
-          key: 'evalId',          
-          render: (text) => {
-            let getUser = () => {
-              this.getUser(text);
-            }
-            return <Button 
-                      onClick={getUser}
-                      disabled={this.state.evalButtonVisible}
-                    >평가</Button>
+        title: '평가',
+        dataIndex: 'evalId',
+        key: 'evalId',
+        render: (text, record) => {
+          // this.setButtonName(record.id);
+          let evalModal = () => {
+            this.evalModal(record);
           }
+          // console.log(this.state.isCompleted);
+          return <Button
+            onClick={evalModal}
+            disabled={this.props.evalButtonVisible}
+          >평가</Button>
+        }
       })
     });
   }
+  // {this.state.isCompleted[record.id]}
 
   render() {
     if (this.state.isLoading) {
@@ -75,9 +88,9 @@ class EmpList extends Component {
     }
     return (
       <div>
-        <Option4table
+        <Table
           columns={this.state.columns}
-          data={this.state.tasks} />
+          dataSource={this.state.userTasks} />
       </div>
     );
   }

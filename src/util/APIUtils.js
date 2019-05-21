@@ -11,7 +11,7 @@ const request = (options) => {
 
     const defaults = {headers: headers};
     options = Object.assign({}, defaults, options); //Object.assign 병합하기 (타겟변수,값1,값2)
-    
+    // console.log(options);
     return fetch(options.url, options)  // header url method 설정후 fetch
     .then(response =>  //받은값을 json으로 바꾸고
         response.json().then(json => {
@@ -277,9 +277,7 @@ export function getByTask(taskId) {
 }
 
 //////////////// sh
-export function setEvalVersion(versionValue) {
-    console.log(versionValue);
-    
+export function setEvalVersion(versionValue) {    
     return request({
         url: API_BASE_URL + '/eval/createVersion',
         method: 'POST',
@@ -293,15 +291,35 @@ export function getAllEvalVersion() {
         method: 'GET'
     });
 }
-export function getEvalItemByVersion(version) {
 
+// version Name으로 version JSON 가져오기
+export function getVersionObj(selectedVersion) {
+    return request({
+        url: API_BASE_URL + '/eval/getVersionObj?selectedVersion=' + selectedVersion,
+        method: 'GET'
+    });
+}
+export function getEvalItemByVersion(version) {
     return request({
         url: API_BASE_URL + '/eval/getVersion?version=' + version,
         method: 'GET'
     });
 }
 
+export function setEvalScore(evalScore) {
+    return request({
+        url: API_BASE_URL + '/eval/setEval',
+        method: 'POST',
+        body: JSON.stringify(evalScore)
+    });
+}
 
+export function searchEval(taskId) {
+    return request ({
+        url: API_BASE_URL + '/eval/searchEval?taskId='+taskId,
+        method: 'GET'
+    })
+}
 
 ///////////////////////////
 class Service {

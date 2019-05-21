@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Input, Icon, Button, Card, Modal } from 'antd';
+import { Input, Icon, Button, Card } from 'antd';
 import Highlighter from 'react-highlight-words';
 
-import { getTask, getByTask } from '../util/APIUtils';
+import { getTask, getByTask, searchEval } from '../util/APIUtils';
 import EmpList from './EmpList';
 import EvalModal from './EvalModal';
 import EvalTask from './EvalTask';
@@ -18,59 +18,59 @@ class Eval extends Component {
     super(props);
     this.state = {
       columns: [{
-        title: 'id',
+        title: '업무 번호',
         dataIndex: 'id',
         key: 'id',
         ...this.getColumnSearchProps('id')
-      },{
-        title: 'title',
+      }, {
+        title: '업무 제목',
         dataIndex: 'title',
         key: 'title',
         ...this.getColumnSearchProps('title')
       }, {
-        title: 'content',
+        title: '업무 내용',
         dataIndex: 'content',
         key: 'content',
         ...this.getColumnSearchProps('content')
       }],
       visible: false,
-      // empNo: 0, // 평가할 사원의 id
       evalDatas: null,
       taskId: 0,
-      users: null,
+      userTasks: null,
+      isCompleted: false
     }
   }
   getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
       setSelectedKeys, selectedKeys, confirm, clearFilters,
     }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          ref={node => { this.searchInput = node; }}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => this.handleSearch(selectedKeys, confirm)}
-          style={{ width: 188, marginBottom: 8, display: 'block' }}
-        />
-        <Button
-          type="primary"
-          onClick={() => this.handleSearch(selectedKeys, confirm)}
-          icon="search"
-          size="small"
-          style={{ width: 90, marginRight: 8 }}
-        >
-          Search
+        <div style={{ padding: 8 }}>
+          <Input
+            ref={node => { this.searchInput = node; }}
+            placeholder={`Search ${dataIndex}`}
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => this.handleSearch(selectedKeys, confirm)}
+            style={{ width: 188, marginBottom: 8, display: 'block' }}
+          />
+          <Button
+            type="primary"
+            onClick={() => this.handleSearch(selectedKeys, confirm)}
+            icon="search"
+            size="small"
+            style={{ width: 90, marginRight: 8 }}
+          >
+            Search
         </Button>
-        <Button
-          onClick={() => this.handleReset(clearFilters)}
-          size="small"
-          style={{ width: 90 }}
-        >
-          Reset
+          <Button
+            onClick={() => this.handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
         </Button>
-      </div>
-    ),
+        </div>
+      ),
     filterIcon: filtered => <Icon type="search" style={{ color: filtered ? '#1890ff' : undefined }} />,
     onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
     onFilterDropdownVisibleChange: (visible) => {
@@ -121,58 +121,59 @@ class Eval extends Component {
             isLoading: false
           });
         }
-      });    
+      });
   }
-  
-  // 날짜 선택하고 task list를 가져올 때 평가하기 버튼 추가 삽입
+
+  // 업무리스트 평가버튼
   componentWillMount() {
     this.setState({
       columns: this.state.columns.concat({
-          title: 'Evaluation',
-          dataIndex: 'id',
-          key: 'id',          
-          render: (text) => {
-            let getUser = () => {
-              this.getUser(text);
-            }
-            return <Button onClick={getUser}>평가</Button>
+        title: '평가',
+        dataIndex: 'id',
+        key: 'id',
+        render: (text) => {
+          let getUser = () => {
+            this.getUser(text);
           }
+          return <Button onClick={getUser}>평가</Button>
+        }
       })
     });
     this.load();
   }
-
   getUser = (childTaskId) => {
     this.setState({
       isLoading: true,
     });
+
     getByTask(childTaskId)
       .then(response => {
         this.setState({
-          users: response,
+          userTasks: response,
           taskId: childTaskId
         });
-
+        console.log(this.state.userTasks); // 업무리스트에서 평가버튼을 누르면 업무를 가진 사원리스트 뜬다
+        // console.log(response);
         // empList 가져오고 평가하기 버튼 활성화/비활성화여부
         var d = new Date();
         var tmpToday = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
         var today = new Date(tmpToday);
         var endDate = new Date(response[0].endDate);
-        
-        if(today > endDate){
+
+        if (today > endDate) {
           // 업무가 마감되지 않았으므로 평가를 할 수 없다.
           this.setState({
-            evalButtonVisible: false,
+            evalButtonVisible: false, // 평가버튼 비활성화
           });
         } else {
           this.setState({
-            evalButtonVisible: true,
+            evalButtonVisible: true, // 평가버튼 활성화
           });
         }
         this.setState({
-          isLoading:false
-        })
-      })   
+          isLoading: false
+        });
+      })
       .catch(error => {
         if (error.status === 404) {
           this.setState({
@@ -187,29 +188,18 @@ class Eval extends Component {
         }
       });
   }
-  
-  // 사원 선택하고나서 평가하기..
-  clickButton = (childEmpNo) => {
-    console.log('hi'); // 평가할 사원의 no
+  // 사원 선택하고나서 평가 모달띄우기..
+  evalModal = (childUserTask) => {
+    this.modalControl(true); // modal control.. true : visible
     this.setState({
-      empNo: childEmpNo,
-      visible: true
+      userTask: childUserTask
     });
   }
 
-  // modal
-  handleOk = () => {
-    console.log("Eval.js >> handleOk()");
+  modalControl = (v) => {
     this.setState({
-      visible: false
-    });
-  }
-
-  handleCancel = () => {
-    console.log("Eval.js >> handleCancel()");
-    this.setState({
-      visible: false
-    });
+      visible: v
+    })
   }
 
   render() {
@@ -229,26 +219,23 @@ class Eval extends Component {
         <Card title='평가하기'>
           <EvalTask
             data={this.state.evalDatas}
-            colums={this.state.columns}/>
-          
-          <br/> <br/>
+            colums={this.state.columns} />
 
-          <EmpList 
-            taskId={this.state.taskId} 
-            tasks={this.state.users}
-            clickButton={this.clickButton}
-            evalButtonVisible={this.state.evalButtonVisible} />
+          <br /> <br />
 
-          <Modal title="평가하기" 
-            visible={this.state.visible} 
-            onOk={this.handleOk} 
-            onCancel={this.handleCancel}
-          >
-            <div>
-              {/* 평가 component */}
-              <EvalModal />
-            </div>            
-          </Modal>
+          <EmpList
+            userTasks={this.state.userTasks} // 업무를 가진 사원리스트
+            evalModal={this.evalModal}
+            evalButtonVisible={this.state.evalButtonVisible}
+            buttonName={this.state.buttonName} />
+
+          {/* 평가 component */}
+          <EvalModal
+            visible={this.state.visible}
+            userTask={this.state.userTask} // 평가할 사원의 업무
+            taskId={this.state.taskId}
+            modalControl={this.modalControl}
+          />
         </Card>
       </div>
     );

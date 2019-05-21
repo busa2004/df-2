@@ -8,6 +8,7 @@ class Option4table extends Component {
       data: this.props.data,
       columns: this.props.columns,
     };
+    console.log(this.props.data);
   }
   render() {
     return <Table columns={this.state.columns} dataSource={this.state.data} />;

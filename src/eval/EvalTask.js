@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Option4table from '../ListComponent/Option4table';
+import { Table } from 'antd';
 
 class EvalTask extends Component {
   constructor(props) {
@@ -13,9 +13,9 @@ class EvalTask extends Component {
   render() {
     return (
       <div className="Option4">
-        <Option4table
+        <Table
           columns={this.state.columns}
-          data={this.state.datas} />
+          dataSource={this.state.datas} />
       </div>
     );
   }

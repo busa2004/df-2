@@ -139,6 +139,17 @@ class ItemTable extends React.Component {
       count: count + 1,
     });
   }
+  
+  componentWillMount() {
+    if(this.state.state === 'eval') {
+      console.log("here!");
+      this.columns.concat({
+        title: 'score',
+        dataIndex: 'score',
+        editable: true        
+      });
+    }
+  }
 
   handleSave = (row) => {
     const newData = [...this.state.dataSource];
@@ -154,17 +165,6 @@ class ItemTable extends React.Component {
     this.props.getDataSource(newData);
   }
   
-  componentWillMount() {
-    if(this.state.state === 'eval') {
-      console.log("here!");
-      this.columns.concat({
-        title: 'score',
-        dataIndex: 'score',
-        editable: true        
-      });
-    }
-  }
-
   render() {
     const { dataSource } = this.state;
     const components = {

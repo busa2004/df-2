@@ -25,13 +25,23 @@ class ManageEvalItem extends Component {
         window.location.reload();
     }
 
+    setVersion = (childVersion) => {
+        this.setState({
+          version: childVersion
+        });
+    }
+    
     render() {
         return (
             <div className="Option8">
                 <h1 className="title"> 평가항목관리 </h1>
-                <VersionSelect getItemList={this.itemListCallback} />
+                <VersionSelect 
+                    getItemList={this.itemListCallback}
+                    disabled={false} />
                 <ItemTable itemList={this.state.itemList} />
-                <VersionAdd refresh={ this.refresh }/>
+                <VersionAdd 
+                    refresh={ this.refresh }
+                    setVersion={this.setVersion}/>
             </div>
         );
     }
