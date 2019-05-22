@@ -4,7 +4,7 @@ import LoadingIndicator from '../common/LoadingIndicator';
 import ServerError from '../common/ServerError';
 import NotFound from '../common/NotFound';
 import '../ListAndSearchUi/ScrollList.css';
-import { searchEval } from '../util/APIUtils';
+import EmpButton from './EmpButton';
 
 class EmpList extends Component {
   constructor(props) {
@@ -33,25 +33,10 @@ class EmpList extends Component {
   }
 
   evalModal = (userTask) => { // 평가할 사원 업무 // userTasks랑 다름
-    console.log(userTask);
+    // console.log(userTask);
     this.props.evalModal(userTask);
   }
   
-// 평가? 수정?
-  // setButtonName = (taskId) => {
-  //   // eval 테이블에서 user_task가 있는지 확인
-  //   searchEval(taskId)
-  //     .then(response => {
-  //       if (response == true) { // 평가완료
-  //         this.state.isCompleted = "수정"          
-  //       } else if (response == false) {          
-  //         this.state.isCompleted = "평가"          
-  //       }
-  //     })
-  //     .catch(error => {
-  //       console.log(error);
-  //     });
-  // }
   componentWillMount() {
     this.setState({
       columns: this.state.columns.concat({
@@ -59,21 +44,15 @@ class EmpList extends Component {
         dataIndex: 'evalId',
         key: 'evalId',
         render: (text, record) => {
-          // this.setButtonName(record.id);
-          let evalModal = () => {
-            this.evalModal(record);
-          }
-          // console.log(this.state.isCompleted);
-          return <Button
-            onClick={evalModal}
-            disabled={this.props.evalButtonVisible}
-          >평가</Button>
+          return <EmpButton
+                    evalModal={this.evalModal}
+                    evalButtonVisible={this.props.evalButtonVisible}
+                    record={record}
+                  />
         }
       })
     });
   }
-  // {this.state.isCompleted[record.id]}
-
   render() {
     if (this.state.isLoading) {
       return <LoadingIndicator />;

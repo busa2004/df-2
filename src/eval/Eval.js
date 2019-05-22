@@ -189,17 +189,22 @@ class Eval extends Component {
       });
   }
   // 사원 선택하고나서 평가 모달띄우기..
-  evalModal = (childUserTask) => {
-    this.modalControl(true); // modal control.. true : visible
-    this.setState({
+  evalModal = async (childUserTask) => {
+    await this.setState({
       userTask: childUserTask
     });
+    this.modalControl(true); // modal control.. true : visible
+    console.log(this.state.userTask);
   }
 
   modalControl = (v) => {
     this.setState({
       visible: v
     })
+  }
+
+  refresh = () => {
+    window.location.reload();
   }
 
   render() {
@@ -231,10 +236,12 @@ class Eval extends Component {
 
           {/* 평가 component */}
           <EvalModal
+            key={this.state.taskId}
             visible={this.state.visible}
             userTask={this.state.userTask} // 평가할 사원의 업무
             taskId={this.state.taskId}
             modalControl={this.modalControl}
+            refresh={this.refresh}
           />
         </Card>
       </div>

@@ -4,8 +4,9 @@ import VersionSelect from './VersionSelect';
 import LoadingIndicator from '../common/LoadingIndicator';
 import ServerError from '../common/ServerError';
 import NotFound from '../common/NotFound';
-import { Table, Input, Modal, notification } from 'antd';
-import { setEvalScore, searchEval } from '../util/APIUtils';
+import { Table, Modal, notification } from 'antd';
+import { setEvalScore } from '../util/APIUtils';
+import ModalInput from './ModalInput';
 
 class EvalModal extends Component {
   constructor(props) {
@@ -25,7 +26,8 @@ class EvalModal extends Component {
         isLoading: true,
         itemList: null,
         version: '',
-        scores: [] // { itemList }, score
+        scores: [], // { itemList }, score,
+        userTask: this.props.userTask
       };
   }
 
@@ -65,16 +67,18 @@ class EvalModal extends Component {
         console.log(error);
         notification.error({
           message: 'version',
-          description: "Failed to save version.."
+          description: "Failed to save eval score.."
         })
       });
 
     this.props.modalControl(false);
+    this.props.refresh();
   }
 
   handleCancel = () => {
     this.props.modalControl(false);
   }
+
 
   handleInputChange = ( event, record) => {
     const target = event.target;
@@ -86,41 +90,27 @@ class EvalModal extends Component {
       }
     });
   }
-
-  setScore = (userTask) => {
-    
-    const taskId = userTask.id;
-    console.log(taskId);
-    searchEval(taskId)
-      .then(response => {
-        console.log(response);
-      })
-      .catch(error => {
-
-      });
-  }
   
   componentWillMount() {
     this.setState({
+      // userTask: this.props.userTask,
       columns: this.state.columns.concat({
           title: '점수',
           dataIndex: 'score',
           key: 'score',  
           width: '20%',        
           render: (text, record) => { // record = version에 따른 itemList
-            this.setScore(this.props.userTask);
-            return <Input
-                      name={record.itemNo}
-                      value="hi"
-                      style={{ cursor:'default' }}
-                      onChange={event => this.handleInputChange(event,record)}
-                      />
+            console.log(this.props.userTask);
+            return <ModalInput 
+                      userTask={this.props.userTask}
+                      record={record}
+                      handleInputChange={this.handleInputChange} />
           }
       }),
       isLoading: false
     });
   }
-  
+
   itemListCallback = (childItemList) => { 
     childItemList.map( (item) => {
       const newData = {
@@ -172,7 +162,7 @@ class EvalModal extends Component {
           columns={this.state.columns}
           dataSource={this.state.itemList}
           pagination={false} />     
-          </Modal>
+      </Modal>
       </div>
     );
   }
