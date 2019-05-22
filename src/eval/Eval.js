@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Input, Icon, Button, Card } from 'antd';
 import Highlighter from 'react-highlight-words';
-
-import { getTask, getByTask, searchEval } from '../util/APIUtils';
+import { searchEval } from '../util/APIUtils';
+import { getTask, getByTask } from '../util/APIUtils';
 import EmpList from './EmpList';
 import EvalModal from './EvalModal';
 import EvalTask from './EvalTask';
@@ -195,7 +195,34 @@ class Eval extends Component {
     });
     this.modalControl(true); // modal control.. true : visible
     console.log(this.state.userTask);
+    this.setScore();
   }
+  
+  setScore = () => {
+    this.setState({
+      isLoading:true
+    })
+    console.log(this.state.userTask);
+    const taskId = this.state.userTask.id;
+
+     searchEval(taskId)
+      .then(response => {
+
+        console.log(response);
+        if(response.length != 0) {
+          this.state.score = response;
+         
+        }
+        this.setState({
+          isLoading: false,
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+    
+  }
+
 
   modalControl = (v) => {
     this.setState({
@@ -236,6 +263,7 @@ class Eval extends Component {
 
           {/* 평가 component */}
           <EvalModal
+            score ={this.state.score}
             key={this.state.taskId}
             visible={this.state.visible}
             userTask={this.state.userTask} // 평가할 사원의 업무

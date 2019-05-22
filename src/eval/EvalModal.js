@@ -102,6 +102,7 @@ class EvalModal extends Component {
           render: (text, record) => { // record = version에 따른 itemList
             console.log(this.props.userTask);
             return <ModalInput 
+                      score ={this.props.score}
                       userTask={this.props.userTask}
                       record={record}
                       handleInputChange={this.handleInputChange} />

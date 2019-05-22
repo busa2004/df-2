@@ -11,43 +11,22 @@ class ModalInput extends Component {
     this.state = {
       userTask: this.props.userTask,
       record: this.props.record,
-      score: 0
+      score : this.props.score,
+      
     }
   }
   
   componentWillMount() {
-    this.setScore();
-  }
-
-  setScore = () => {
-    this.setState({
-      isLoading:true
-    })
-    console.log(this.state.userTask);
-    const taskId = this.state.userTask.id;
-
-     searchEval(taskId)
-      .then(response => {
-
-        console.log(response);
-        if(response.length != 0) {
-          response.map((item) => {
+     this.state.score.map((item) => {
             if(this.state.record.itemNo == item.score.evalItem.itemNo) {
               this.setState({
                 score: item.score.score
               });
             }
           });
-        }
-        this.setState({
-          isLoading: false,
-        });
-      })
-      .catch(error => {
-        console.log(error);
-      });
-    
   }
+
+ 
 
   render() {
     if (this.state.isLoading) {
@@ -62,6 +41,7 @@ class ModalInput extends Component {
       return <ServerError />;
     }
     return (
+      
       <Input
         name={this.state.record.itemNo}
         value={this.state.score}
